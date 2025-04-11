@@ -31,14 +31,12 @@ def extract_text_from_pdf(pdf_path):
                 text += extracted + "\n"
     return text
 
-# Load and extract text
-pdf_path = "266ac45d-student-handbook.pdf"
-text = extract_text_from_pdf(pdf_path)
-
-# Save the extracted text to handbook.txt
-with open("handbook.txt", "w", encoding="utf-8") as file:
-    file.write(text)
-print(f"Text extracted and saved to handbook.txt")
+def extract_and_save_handbook_text(pdf_path="266ac45d-student-handbook.pdf"):
+    text = extract_text_from_pdf(pdf_path)
+    with open("handbook.txt", "w", encoding="utf-8") as file:
+        file.write(text)
+    print("Text extracted and saved to handbook.txt")
+    return text
 
 # Set Google API Key (replace with your actual key)
 import os
@@ -99,12 +97,15 @@ class CombinedRetriever(BaseRetriever):
         return self._get_relevant_documents(query)
 
 text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50)
-split_docs = text_splitter.split_documents([Document(page_content=text)])
-# Create FAISS vector store
-vectorstore = FAISS.from_documents(split_docs, embedding_model)
 
-# Define the retriever
-retriever = vectorstore.as_retriever(search_type="similarity", search_kwargs={"k": 5})
+def initialize_retriever():
+    text = extract_text_from_pdf("266ac45d-student-handbook.pdf")
+    split_docs = text_splitter.split_documents([Document(page_content=text)])
+    vectorstore = FAISS.from_documents(split_docs, embedding_model)
+    retriever = vectorstore.as_retriever(search_type="similarity", search_kwargs={"k": 5})
+    return CombinedRetriever(base_retriever=retriever)
+
+combined_retriever = initialize_retriever()
 
 def create_enhanced_prompt(query, relevant_docs):
     """Generate a response prompt without explicitly mentioning retrieved documents."""
@@ -125,9 +126,6 @@ def create_enhanced_prompt(query, relevant_docs):
         Be conversational and thorough in your explanation."""
     
     return prompt
-
-# Initialize combined retriever with your existing retriever
-combined_retriever = CombinedRetriever(base_retriever=retriever)
 
 memory = ConversationBufferMemory(
     memory_key="chat_history",

@@ -1,4 +1,7 @@
-from extract_text import chatbot_response
+import os
+from dotenv import load_dotenv
+load_dotenv()
+from extract_text import chatbot_response  # Assumes chatbot setup is already safely initialized inside extract_text
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
