@@ -34,10 +34,10 @@ function App() {
 
   // Function to send a message to the backend (or simulate a response)
   const sendMessageToBackend = async (userMessage, currentChatHistory) => {
-    if (!process.env.REACT_APP_BACKEND_URL) {
+    const backendUrl = process.env.REACT_APP_BACKEND_URL || "http://localhost:8000";
+    if (!backendUrl) {
       return "Backend URL not set. Please check your .env configuration.";
     }
-    const backendUrl = process.env.REACT_APP_BACKEND_URL || "http://localhost:8000";
     try {
       const formattedHistory = currentChatHistory.map(m => [m.sender, m.text]);
       const response = await fetch(`${backendUrl}/chat`, {
