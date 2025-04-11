@@ -2,7 +2,8 @@ FROM python:3.10.13-slim
 
 WORKDIR /app
 
-COPY usiu-chatbot/backend/requirements.txt .
+# Copy and install requirements
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY usiu-chatbot/backend /app
