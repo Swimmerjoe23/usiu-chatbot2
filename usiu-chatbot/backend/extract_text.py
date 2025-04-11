@@ -1,6 +1,5 @@
 from dotenv import load_dotenv
 load_dotenv()
-
 import os
 import pdfplumber
 import gradio as gr

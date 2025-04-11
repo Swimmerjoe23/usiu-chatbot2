@@ -1,16 +1,21 @@
+from dotenv import load_dotenv
 from langchain_community.vectorstores import FAISS  # Import FAISS
 from langchain_huggingface import HuggingFaceEmbeddings  # Import embedding model
 from langchain.chains import RetrievalQA
 from langchain_community.chat_models import ChatOpenAI
 import os
+load_dotenv()
+# Ensure your .env file contains a line like: OPENAI_API_KEY=your_api_key
 vector_store = FAISS.load_local(
     "faiss_index",
     HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2"),
     allow_dangerous_deserialization=True  # Make sure you're loading trusted data
 )
-os.environ["OPENAI_API_KEY"] = "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"
 os.environ["TOKENIZERS_PARALLELISM"] = "false"  # Suppress tokenizers warning
-llm = ChatOpenAI(model_name="gpt-4")  # You can also use "gpt-3.5-turbo"
+openai_api_key = os.getenv("OPENAI_API_KEY")
+if not openai_api_key:
+    raise EnvironmentError("OPENAI_API_KEY not set in environment variables")
+llm = ChatOpenAI(model_name="gpt-4", openai_api_key=openai_api_key)  # You can also use "gpt-3.5-turbo"
 retriever = vector_store.as_retriever()
 qa_chain = RetrievalQA.from_chain_type(llm=llm, retriever=retriever, chain_type="stuff")
 def get_answer(query):
